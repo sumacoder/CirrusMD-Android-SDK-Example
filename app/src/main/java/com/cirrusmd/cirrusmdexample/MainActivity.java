@@ -1,5 +1,6 @@
 package com.cirrusmd.cirrusmdexample;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import com.cirrusmd.androidsdk.CirrusEvents;
 import com.cirrusmd.androidsdk.CirrusListener;
 import com.cirrusmd.androidsdk.CirrusMD;
+import com.cirrusmd.multimodule.SDKLauncherActivity;
 import com.google.gson.GsonBuilder;
 
 import retrofit2.Call;
@@ -49,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements CirrusListener {
 
         homeText = new TextView(this);
         homeText.setText(R.string.home_text);
+        homeText.setOnClickListener(v -> {
+            Intent i = new Intent(MainActivity.this, SDKLauncherActivity.class);
+            startActivity(i);
+        });
 
         frame = findViewById(R.id.frameLayout);
         BottomNavigationView navigation = findViewById(R.id.navigation);

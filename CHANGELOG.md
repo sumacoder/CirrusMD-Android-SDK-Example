@@ -1,10 +1,10 @@
-# 2.4.4 / 2018-10-01
+# 2.4.5 / 2018-10-04
 
 Bug Fix:
 
 * Fixing a crash where the ImageDetailsFragment was being dismissed before startPostponedEnterTransition() was being called
 
-# 2.4.4 / 2018-10-01
+# 2.4.4 / 2018-10-02
 
 Bug Fix:
 

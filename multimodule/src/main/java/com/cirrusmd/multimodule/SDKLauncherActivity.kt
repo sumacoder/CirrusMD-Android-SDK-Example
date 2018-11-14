@@ -1,0 +1,78 @@
+package com.cirrusmd.multimodule
+
+import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import android.view.View
+import com.cirrusmd.androidsdk.CirrusEvents
+import com.cirrusmd.androidsdk.CirrusListener
+import com.cirrusmd.androidsdk.CirrusMD
+import com.cirrusmd.exampleapp.SessionToken
+import com.cirrusmd.exampleapp.TokenFetcher
+import com.cirrusmd.exampleapp.TokenRequest
+import retrofit2.Call
+import retrofit2.Response
+
+class SDKLauncherActivity : AppCompatActivity(), CirrusListener {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_sdklauncher)
+        startValidSession()
+        CirrusMD.listener = this
+    }
+
+    private fun startValidSession() {
+        CirrusMD.start(this, getSecret())
+
+        val request = TokenRequest()
+
+        //KP
+//        request.patientId = "89575"
+//        request.sdkId = "9e944ef5-f910-47a2-92a2-1d4b4f8e2cc3"
+
+        //Cirrus
+        request.patientId = "886"
+        request.sdkId = "21dca847-a7c8-4150-99eb-a255231a2f00"
+
+        TokenFetcher
+                .retrofit()
+                .getSessionJwt(request)
+                .enqueue(object : retrofit2.Callback<SessionToken> {
+                    override fun onResponse(call: Call<SessionToken>?, response: Response<SessionToken>?) {
+                        val token = response?.body()?.token
+                        if (token != null) {
+                            CirrusMD.setSessionToken(token)
+                            displayMessages()
+                        }
+                    }
+
+                    override fun onFailure(call: Call<SessionToken>?, t: Throwable?) {
+                    }
+                })
+    }
+
+    override fun onEvent(error: CirrusEvents) {
+        Log.d("onEvent", error.toString())
+    }
+
+    override fun viewForError(error: CirrusEvents): View? {
+        return null
+    }
+
+    private fun getSecret(): String {
+        //KP
+//        return "eyJzaGFyZWRfc2VjcmV0IjoiY2VlNDMzODUtZjExMy00YWQ4LWEzODEtM2Q3MDRjZTJmYjMzIiwieDUwOV9jZXJ0X2RlciI6Ik1JSUQ4RENDQXRpZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREJjTVFzd0NRWURWUVFHRXdKVlV6RVdNQlFHQTFVRUNnd05RMmx5Y25WelRVUWdTVzVqTGpFVU1CSUdBMVVFQ3d3TFJXNW5hVzVsWlhKcGJtY3hEREFLQmdOVkJBTU1BMU5FU3pFUk1BOEdBMVVFQ0F3SVEyOXNiM0poWkc4d0lCY05OekF3TVRBeE1EQXdNREF3V2hnUE5EQXdNVEF4TURFd01EQXdNREJhTUZ3eEN6QUpCZ05WQkFZVEFsVlRNUll3RkFZRFZRUUtEQTFEYVhKeWRYTk5SQ0JKYm1NdU1SUXdFZ1lEVlFRTERBdEZibWRwYm1WbGNtbHVaekVNTUFvR0ExVUVBd3dEVTBSTE1SRXdEd1lEVlFRSURBaERiMnh2Y21Ga2J6Q0NBU0l3RFFZSktvWklodmNOQVFFQkJRQURnZ0VQQURDQ0FRb0NnZ0VCQUswT1ltbnVEblZYVCtyNGtQM0V3T29DWnZSSG9rOWtYcys0S3J4UjJnNjZ6VkdVOHJKQVVpc3U3dVV1YXhmdUxzczJpQ3RFbWdSSDZKOTExeHlVYWt3RC9tRFlqZ3c0ZmNiU2ZKazVjTmw5UHh5Nm05NXBwaVlnVkY0RTRwN3VBNFAwRmhKOHlCLzlrbUFGM2U3NzBSL2s0TlpXOS9sWS9XV005d20vV0VEOVIxTzlWeFQ0bUgwa0RKQllFOGc5OHpCQmRmdktHeld0Q0czWmdmajN5aFRtMkJmb3FHbzNreHJFOURkeTBWZGMrblNyd0Q4Ky96a2o5dGkrTXdSVmRTdFJZWFVZT1RxYUJEV3VmbGJZbDBxWUVGb2E4OVBWU2NoU2prdFlqU0pFRGc4bWRBc2NJdG4ramkzWEs4UnBwWTJ3VGNhUGg0YkRMWFZLVi84Z3Y1a0NBd0VBQWFPQnVqQ0J0ekFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVdCQlFYRUx6WDJvR200WTN1NXVRM2VFWk5NSlp0TlRDQmhBWURWUjBqQkgwd2U0QVVGeEM4MTlxQnB1R043dWJrTjNoR1RUQ1diVFdoWUtSZU1Gd3hDekFKQmdOVkJBWVRBbFZUTVJZd0ZBWURWUVFLREExRGFYSnlkWE5OUkNCSmJtTXVNUlF3RWdZRFZRUUxEQXRGYm1kcGJtVmxjbWx1WnpFTU1Bb0dBMVVFQXd3RFUwUkxNUkV3RHdZRFZRUUlEQWhEYjJ4dmNtRmtiNElCQURBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQVdqOHptSE9pT0I5eTZ6WXByYnM1anlsdnhBOHRJUlJuckRRTEV4T1JGcldXeHVZQlpPa3JyYXpuaTNMd1VkVFEraUpMMVgycGdjMkxWK2l2KzhWTXh3OFVQMExDNGpodkxNYVY3dTFDZ0pkN2txZ05nbTZTQ21RZEd1Q0dZcExRVTJERXlVQVNkY3d0cGdMN0FaVjViUWZmWDYrV2doTUhNOWUrOXh6WHlkeDRPdG1BUTZvcjBoZzNqdFJidXNDUjBEdUZITC9PcUkvWXIzR3Bqb1VBQ0kwWmYzdHZqUC9xVXZVazJrQnA5YnJtSVQzaGU2RXFJbExrRXBzeGlTNk9MMXRHWE9JblBtTStQTDQ1cXZMQUhTTXY0T2xoUE5sMFFkaDI4aExZSC9rTmhhNW40ZzRKb3VkZTNBdEpPbVplb28wdkFCMk85bzFPaFRFT2NvUzByZz09IiwicHVibGljX2tleV9wZW0iOiItLS0tLUJFR0lOIFBVQkxJQyBLRVktLS0tLVxuTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFyUTVpYWU0T2RWZFA2dmlRL2NUQVxuNmdKbTlFZWlUMlJlejdncXZGSGFEcnJOVVpUeXNrQlNLeTd1NVM1ckYrNHV5emFJSzBTYUJFZm9uM1hYSEpScVxuVEFQK1lOaU9ERGg5eHRKOG1UbHcyWDAvSExxYjNtbW1KaUJVWGdUaW51NERnL1FXRW56SUgvMlNZQVhkN3Z2UlxuSCtUZzFsYjMrVmo5Wll6M0NiOVlRUDFIVTcxWEZQaVlmU1FNa0ZnVHlEM3pNRUYxKzhvYk5hMEliZG1CK1BmS1xuRk9iWUYraW9hamVUR3NUME4zTFJWMXo2ZEt2QVB6Ny9PU1AyMkw0ekJGVjFLMUZoZFJnNU9wb0VOYTUrVnRpWFxuU3BnUVdocnowOVZKeUZLT1MxaU5Ja1FPRHlaMEN4d2kyZjZPTGRjcnhHbWxqYkJOeG8rSGhzTXRkVXBYL3lDL1xubVFJREFRQUJcbi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLVxuIn0="
+
+        //Cirrus
+        return "eyJzaGFyZWRfc2VjcmV0IjoiZWFlZGZkYWMtZjBkYS00NGYxLTkxNDgtYTE3ZWQ4NDcxY2Q3IiwieDUwOV9jZXJ0X2RlciI6Ik1JSUQ4RENDQXRpZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREJjTVFzd0NRWURWUVFHRXdKVlV6RVdNQlFHQTFVRUNnd05RMmx5Y25WelRVUWdTVzVqTGpFVU1CSUdBMVVFQ3d3TFJXNW5hVzVsWlhKcGJtY3hEREFLQmdOVkJBTU1BMU5FU3pFUk1BOEdBMVVFQ0F3SVEyOXNiM0poWkc4d0lCY05OekF3TVRBeE1EQXdNREF3V2hnUE5EQXdNVEF4TURFd01EQXdNREJhTUZ3eEN6QUpCZ05WQkFZVEFsVlRNUll3RkFZRFZRUUtEQTFEYVhKeWRYTk5SQ0JKYm1NdU1SUXdFZ1lEVlFRTERBdEZibWRwYm1WbGNtbHVaekVNTUFvR0ExVUVBd3dEVTBSTE1SRXdEd1lEVlFRSURBaERiMnh2Y21Ga2J6Q0NBU0l3RFFZSktvWklodmNOQVFFQkJRQURnZ0VQQURDQ0FRb0NnZ0VCQUt2NFNDT284UURvV3dnWDJHM3NHNTZXcTlBQ3VQMVlMbkQwNjVNdE5oZXZ5SGFiMWhTQTRlOStSR1R6ZUU1cDBFdUh0a3NYK3ZCek9iUFdUOVQwN0dBaVBSVkdWaVFSellpWEFOQTIvMVBBdk9Pa1JCVGUrZlJFc2FkVHJEdWx1SHhhc3B6dk9NR21KU0xIckJBUTVVTUdjck9leU9PYktnb2JzK0dUNFg4V3ZsMG1wWEN4aEZtTVozdmx3aDZJaTEwRlFqN2J0NmI2b2YremRxSXRaK1hkTWtZalB2NFc2dGp4Ym0zS005djJxaTYrcVJraWxlZW5NbTRQb2FEL09YUmZCdUZMMFJrYi9uTDgxV0M4MkFyREUzNE0ycmZrUXNMeGFvLzROdHBtVlExemtxSXNYU3g4VEZaMWpDUVJXcFIxTDAzK09BYkp3c3gwVEgwUE9Fc0NBd0VBQWFPQnVqQ0J0ekFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVdCQlI3RHdOdE5tNzVvVnZiSlBtaXg0dHY4MXlmUkRDQmhBWURWUjBqQkgwd2U0QVVldzhEYlRadSthRmIyeVQ1b3NlTGIvTmNuMFNoWUtSZU1Gd3hDekFKQmdOVkJBWVRBbFZUTVJZd0ZBWURWUVFLREExRGFYSnlkWE5OUkNCSmJtTXVNUlF3RWdZRFZRUUxEQXRGYm1kcGJtVmxjbWx1WnpFTU1Bb0dBMVVFQXd3RFUwUkxNUkV3RHdZRFZRUUlEQWhEYjJ4dmNtRmtiNElCQURBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQUN6V0ZFY1N5WUQxNWQ1Qm0vdEhWZTRzQU44RWNNVGFQaVRXWkdYN0dXNGZUTFphWE5XRCtrUnN6VDlOU0FCNDVGNHF6Q3pCNE1hbmdZSHI5VlR0c1kzeGZpVDl3ZDFpMDJtNUorTjZLeFVrZ3Awdzh3YW90bVFmLzR4WnRta21Qa1Z3Rlo1NkVXTFVKcDFLLzIvQ2hOMDRlRGNHL3pvWXI1TDVaRkRDQW5iM0s5TUdoOVM0QjdBY2lKV0k1V0lmZncreGJQN3c4ckc3Y2sveDliWXFZbXZmelBrdXh0elRSK1Z1bHV5aDJCMzI2QU5na1k0dDNRNWNDNk1JQm45VFdFTEt3L1p4a2E3SUhKdGZ0ekxxZlpMckJBd1VFcm1OK29IbmFBaGxZb1VjdG9yNmk5alFmQTNnSTVTTW9hcVpUWEwrK0I4aW9nVHJZOUgwNWFEYzZ0dz09IiwicHVibGljX2tleV9wZW0iOiItLS0tLUJFR0lOIFBVQkxJQyBLRVktLS0tLVxuTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFxL2hJSTZqeEFPaGJDQmZZYmV3YlxubnBhcjBBSzQvVmd1Y1BUcmt5MDJGNi9JZHB2V0ZJRGg3MzVFWlBONFRtblFTNGUyU3hmNjhITTVzOVpQMVBUc1xuWUNJOUZVWldKQkhOaUpjQTBEYi9VOEM4NDZSRUZONzU5RVN4cDFPc082VzRmRnF5bk84NHdhWWxJc2VzRUJEbFxuUXdaeXM1N0k0NXNxQ2h1ejRaUGhmeGErWFNhbGNMR0VXWXhuZStYQ0hvaUxYUVZDUHR1M3B2cWgvN04yb2kxblxuNWQweVJpTSsvaGJxMlBGdWJjb3oyL2FxTHI2cEdTS1Y1NmN5YmcraG9QODVkRjhHNFV2UkdSditjdnpWWUx6WVxuQ3NNVGZnemF0K1JDd3ZGcWovZzIybVpWRFhPU29peGRMSHhNVm5XTUpCRmFsSFV2VGY0NEJzbkN6SFJNZlE4NFxuU3dJREFRQUJcbi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLVxuIn0="
+    }
+
+    private fun displayMessages() {
+        val cirrusFragment = CirrusMD.fragment
+
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, cirrusFragment, "Messages")
+                .commit()
+    }
+}
