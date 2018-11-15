@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    // These colors are used throughout the app. Mostly used for accents/buttons
+    <color name="cirrus_primary">#c31af2</color>
+    <color name="cirrus_primary_dark">#6b0e85</color>
+    <color name="cirrus_secondary">#ccbf06</color>
+    <color name="cirrus_tertiary">#feda39</color>
+
+    // These are used for the queue status bar/details screens
+    <color name="cirrus_off_hours">#4a4a4a</color>
+    <color name="cirrus_unassigned">#4b070f</color>
+    <color name="cirrus_assigned">#004d0d</color>
+</resources>
